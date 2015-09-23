@@ -44,17 +44,88 @@ var fpsTime = 0;
 var chuckNorris = document.createElement("img");
 chuckNorris.src = "hero.png";
 
+var enemy = new Enemy();
 var player = new Player(); 
 var keyboard = new Keyboard(); 
  
+//collision checking function
+function intersects(x1, y1, w1, h1, x2, y2, w2, h2) 
+{  
+	if (y2 + h2 < y1 ||   
+		x2 + w2 < x1 ||   
+		x2 > x1 + w1 ||   
+		y2 > y1 + h1)  
+	{ 
+		return false;	
+	}  
+	return true; 
+}
+
 function run() 
 {  
 	context.fillStyle = "#ccc";    
 	context.fillRect(0, 0, canvas.width, canvas.height);    
-	var deltaTime = getDeltaTime();   
+	var deltaTime = getDeltaTime(); 
+
+//draw enemy
+	if (enemy.isDead == false)
+	{
+		enemy.update(deltaTime);
+		enemy.draw();
+	}
+	
+//draw player	
 	player.update(deltaTime);  
-	player.draw();  
-    
+	player.draw(); 
+
+	if(keyboard.isKeyDown(keyboard.KEY_A) == true)  
+	{   
+		playerShoot();  
+	}  
+	
+// update all the bullets
+	for(var i=0; i<bullets.length; i++)
+	{
+		bullets[i].x += bullets[i].velocityX * deltaTime;
+		bullets[i].y += bullets[i].velocityY * deltaTime;
+	}
+		
+// check if the bullet has gone out of the screen and kill it
+	for(var i=0; i<bullets.length; i++)
+	{
+		if(bullets[i].x < -bullets[i].width ||
+		bullets[i].x > SCREEN_WIDTH ||
+		bullets[i].y < -bullets[i].height ||
+		bullets[i].y > SCREEN_HEIGHT)
+		{
+			bullets.splice(i, 1);
+			break;   //remove it from the array
+		}
+	}
+		
+// draw all the bullets
+	for(var i=0; i<bullets.length; i++)
+	{
+		context.drawImage(bullets[i].image,
+		bullets[i].x - bullets[i].width/2,
+		bullets[i].y - bullets[i].height/2);
+	}
+   
+// collision with enemy   
+	for(var j=0; j<bullets.length; j++)
+			{
+				if(intersects(
+				bullets[j].x, bullets[j].y,
+				bullets[j].width, bullets[j].height,
+				enemy.x, enemy.y,
+				enemy.width, enemy.height) == true)
+				{
+					enemy.isDead = true;
+					bullets.splice(j, 1);
+					break;
+				}
+			}
+	
  // update the frame counter   
 	fpsTime += deltaTime;  
 	fpsCount++;  
