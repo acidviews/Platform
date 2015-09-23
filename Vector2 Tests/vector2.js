@@ -1,37 +1,38 @@
 var Vector2 = function()
 {
-	function set(x, y)
-	{	
-		return this.x = x;
-		return this.y = y;
-	}
-		
-	function normalize()
-	{
-		var length = Math.sqrt (x*x + y*y);
-	
-		var normalX = this.x / length;
-		var normalY = this.y / length;
-	}
-	
-	function add(v2)
-	{
-		this.x = this.x + v2;
-		this.y = this.y + v2;
-	}
-
-	 function subtract(v2)
-	{
-		this.x = this.x - v2;
-		this.y = this.y - v2;
-	}
-
-	 function multiplyScalar(num)
-	{
-		this.x = this.x * scalar;
-		this.y = this.y * scalar;
-	}		
+	this.x = 0;
+	this.y = 0;
+	this.v = 0;
 }
 
-//set(2,3);
+Vector2.prototype.set = function (x,y)
+{	
+	this.x = x;
+	this.y = y;
+}
+		
+Vector2.prototype.normalize = function ()
+{
+	var length = Math.sqrt (this.x * this.x + this.y * this.y);
+	
+	this.x = this.x / length;
+	this.y = this.y / length;
+}
+	
+Vector2.prototype.add = function (v2)
+{
+	this.x += v2.x;
+	this.y += v2.y;
+}
+
+Vector2.prototype.subtract = function (v2)
+{
+	this.x -= v2.x;
+	this.y -= v2.y;
+}
+
+Vector2.prototype.multiplyScalar = function (num)
+{
+	this.v = this.v * num;
+}		
 
