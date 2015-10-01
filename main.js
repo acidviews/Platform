@@ -29,6 +29,10 @@ function getDeltaTime()
 
 //-------------------- Don't modify anything above here
 
+//Sound
+var musicBackground;
+var sfxFire;
+
 var SCREEN_WIDTH = canvas.width;
 var SCREEN_HEIGHT = canvas.height;
 
@@ -88,6 +92,7 @@ var FRICTION = MAXDX * 6;
 var JUMP = METER * 1500;     
 
 var vector2 = new Vector2();
+var enemy = new Enemy(); 
 var player = new Player(); 
 var keyboard = new Keyboard();
 
@@ -211,6 +216,32 @@ function run()
 } 
 		
 initialize();
+{
+	musicBackground = new Howl
+	(	 
+	{
+			urls: ["background.ogg"], 
+			loop: true,
+			buffer: true,
+			volume: 0.5
+	} 
+	);
+
+	musicBackground.play();
+
+	sfxFire = new Howl
+	( 
+	{
+		urls: ["fireEffect.ogg"],
+		buffer: true,
+		volume: 1,
+		onend: function() 
+		{
+			isSfxPlaying = false;
+		}
+	} 
+	);
+}
 
 //-------------------- Don't modify anything below here
 

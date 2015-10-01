@@ -74,7 +74,11 @@ function runGame(deltaTime)
 	
 //draw player
 	player.update(deltaTime);  
-	player.draw(); 
+	player.draw();
+
+//draw enemy
+	enemy.update(deltaTime);
+	enemy.draw();
 	
  // update the fps   
 	fpsTime += deltaTime;  
