@@ -39,11 +39,10 @@ function splashText()
 	context.fillText("<Space Bar = Start>",240, 20);
 	context.fillText("<Arrows = Movement>",480, 20);
 	 
-	context.font="35px Arial";  
-	context.fillText("Chuck Norris",400, 250);
-	context.fillText("IS",400, 300);
-	context.fillText("Kikn' ASS !",400, 350);
-	
+	context.font="40px Arial";  
+	context.fillText("Chuck Norris !",210, 250);
+	//context.fillText("IS",225, 300);
+	context.fillText("Ass Kicker !",225, 300);
 }
 
 //splash screen function
@@ -104,7 +103,7 @@ function gameOverText()
 	context.fillText("Your Score   " + PLAYER_SCORE, 240, 250);
 //player deaths		
 	context.font="20px Arial";
-	context.fillText("Deaths   " + PLAYER_DEATHS, 255, 475);
+	context.fillText("Deaths   " + PLAYER_DEATHS, 280, 475);
 }
 
 // game over splash
