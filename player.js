@@ -254,6 +254,7 @@ Player.prototype.update = function(deltaTime)
 Player.prototype.draw = function() 
 { 
 	context.save();  
-	this.sprite.draw(context, this.position.x, this.position.y);
+	this.sprite.draw(context, this.position.x - worldOffsetX, 
+											this.position.y);
 	context.restore(); 
 }

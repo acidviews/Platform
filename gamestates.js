@@ -69,16 +69,20 @@ function runGame(deltaTime)
 	context.fillStyle = "#ccc";    
 	context.fillRect(0, 0, canvas.width, canvas.height);
 	
+	//var deltaTime = getDeltaTime();
+//update player 	
+	player.update(deltaTime);
+	
 //draw the map
 	drawMap();
 	
 //draw player
-	player.update(deltaTime);  
 	player.draw();
 
-//draw enemy
+/*draw enemy
 	enemy.update(deltaTime);
 	enemy.draw();
+*/
 	
  // update the fps   
 	fpsTime += deltaTime;  
