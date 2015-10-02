@@ -69,15 +69,20 @@ function runGame(deltaTime)
 	context.fillStyle = "#ccc";    
 	context.fillRect(0, 0, canvas.width, canvas.height);
 	
-	//var deltaTime = getDeltaTime();
 //update player 	
 	player.update(deltaTime);
+	
+
 	
 //draw the map
 	drawMap();
 	
 //draw player
 	player.draw();
+	
+//bullets
+	bulletsUpdate();
+	bulletsDraw();
 
 /*draw enemy
 	enemy.update(deltaTime);
@@ -98,6 +103,21 @@ function runGame(deltaTime)
 	context.fillStyle = "#f00";  
 	context.font="14px Arial";  
 	context.fillText("FPS: " + fps, 5, 20, 100);
+	
+// draw score
+	context.fillStyle = "white";
+	context.font="26px Arial";
+	var scoreText = "Score:  " + PLAYER_SCORE;
+	context.fillText(scoreText,10, SCREEN_HEIGHT - 10);
+	
+//draw lives
+	for(var i=0; i<PLAYER_LIVES; i++)
+	{
+		var heart = document.createElement("img");
+		heart.src = "heartbeats.png";
+				
+		context.drawImage(heart, SCREEN_WIDTH - 50 - (( heart.width + 2 ) *i ), SCREEN_HEIGHT - 50);
+	}
 }
 
 // game over text

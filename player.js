@@ -9,7 +9,7 @@ var ANIM_JUMP_RIGHT = 4;
 var ANIM_WALK_RIGHT = 5;
 var ANIM_CLIMBING = 6;
 var ANIM_SHOOTING_LEFT = 7;
-var ANIM_SHOTTING_RIGHT = 8;
+var ANIM_SHOOTING_RIGHT = 8;
 var ANIM_MAX = 9;
 
 var Player = function() 
@@ -51,12 +51,12 @@ var Player = function()
 	
 	this.position = new Vector2();  
 	this.position.set( 9*TILE, 0*TILE);
+	
+	this.velocity = new Vector2();
     
 	this.width = 159;  
 	this.height = 163; 
      
- 	this.velocity = new Vector2(); 
-   
 	this.falling = true;  
 	this.jumping = false;  
   
@@ -127,11 +127,24 @@ Player.prototype.update = function(deltaTime)
 		{
 			this.cooldownTimer -= deltaTime;
 		}
-	if(keyboard.isKeyDown(keyboard.KEY_SPACE) == true && this.cooldownTimer <= 0) 
+		
+	if(keyboard.isKeyDown(keyboard.KEY_SPACE) == true)
 	{
-		sfxFire.play();    
-		this.cooldownTimer += 0.3;
-// Shoot a bullet
+//shoot animation
+		if (this.direction == RIGHT)
+		{
+			this.sprite.setAnimation(ANIM_SHOOTING_RIGHT);
+		}
+		if (this.direction == LEFT) 
+		{
+			this.sprite.setAnimation(ANIM_SHOOTING_LEFT);
+		}
+// Shoot a bullet	
+		if (this.cooldownTimer <= 0)
+		{
+			sfxFire.play();    
+			this.cooldownTimer += 0.3;
+		}
 	}
 	
 	var wasleft = this.velocity.x < 0;     
@@ -245,16 +258,23 @@ Player.prototype.update = function(deltaTime)
 	
 	if (this.position.y > SCREEN_HEIGHT)
 	{
+		PLAYER_LIVES -= 1;
 		PLAYER_DEATHS += 1;
-		gameState = STATE_GAMEOVER;
-		return;
+		player.position.set( 9*TILE, 0*TILE);
+		
+		if (PLAYER_LIVES < 0)
+		{
+			gameState = STATE_GAMEOVER;
+			return;
+		}
 	}
 }
   
 Player.prototype.draw = function() 
 { 
-	context.save();  
+	context.save();
+//draw player	
 	this.sprite.draw(context, this.position.x - worldOffsetX, 
-											this.position.y);
+											this.position.y);											
 	context.restore(); 
 }

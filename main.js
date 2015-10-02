@@ -29,12 +29,14 @@ function getDeltaTime()
 
 //-------------------- Don't modify anything above here
 
-//Sound
-var musicBackground;
-var sfxFire;
 
+//screen
 var SCREEN_WIDTH = canvas.width;
 var SCREEN_HEIGHT = canvas.height;
+
+//sound
+var musicBackground;
+var sfxFire;
 
 // some variables to calculate the Frames Per Second (FPS - this tells use
 // how fast our game is running, and allows us to make the game run at a 
@@ -46,6 +48,9 @@ var fpsTime = 0;
 // load an image to draw
 var chuckNorris = document.createElement("img");
 chuckNorris.src = "hero.png";
+
+//lives
+var PLAYER_LIVES = 3;
 
 // load the image to use for the level tiles
 var tileset = document.createElement("img"); 
@@ -220,29 +225,6 @@ function drawMap()
 	}
 }
 
-/*	
-	for(var layerIdx=0; layerIdx<LAYER_COUNT; layerIdx++)     
-	{            
-		var idx = 0;             
-		for( var y = 0; y < level1.layers[layerIdx].height;  y++ )             
-		{                  
-			for( var x = 0; x < level1.layers[layerIdx].width;  x++ )                   
-			{                          
-				if( level1.layers[layerIdx].data[idx] != 0 )                          
-				{                                
-// the tiles in the Tiled map are base 1 (meaning a value of 0 means no tile), 
-//so subtract one from the tileset id to get the correct tile                                
-					var tileIndex = level1.layers[layerIdx].data[idx] - 1;                                
-					var sx = TILESET_PADDING + (tileIndex % TILESET_COUNT_X) * (TILESET_TILE + TILESET_SPACING);                                
-					var sy = TILESET_PADDING + (Math.floor(tileIndex / TILESET_COUNT_Y)) * (TILESET_TILE + TILESET_SPACING);                                
-					context.drawImage(tileset, sx, sy, TILESET_TILE, TILESET_TILE, x*TILE, (y-1)*TILE, TILESET_TILE, TILESET_TILE);                           
-				}                           
-			idx++;                   
-			}             
-		}
-	}
-}	
-*/
 function run() 
 {
 	context.fillStyle = "#000000";
