@@ -1,6 +1,4 @@
-var LEFT = 0;
-var RIGHT = 1;
-
+//player animation variables
 var ANIM_IDLE_LEFT = 0;
 var ANIM_JUMP_LEFT = 1;
 var ANIM_WALK_LEFT = 2;
@@ -11,6 +9,9 @@ var ANIM_CLIMBING = 6;
 var ANIM_SHOOTING_LEFT = 7;
 var ANIM_SHOOTING_RIGHT = 8;
 var ANIM_MAX = 9;
+
+var LEFT = 0;
+var RIGHT = 1;
 
 var Player = function() 
 {  
@@ -45,8 +46,7 @@ var Player = function()
 	
 	for(var i=0; i<ANIM_MAX; i++)
 	{
-		this.sprite.setAnimationOffset(i, -55, -87);
-										
+		this.sprite.setAnimationOffset(i, -55, -87);								
 	}
 	
 	this.position = new Vector2();  
@@ -59,22 +59,21 @@ var Player = function()
      
 	this.falling = true;  
 	this.jumping = false;  
-  
-	this.direction = LEFT; 
+	this.direction = RIGHT; 
 		
 	this.cooldownTimer = 0;
 }; 
 
 Player.prototype.update = function(deltaTime) 
 { 
+	//update sprite
+	this.sprite.update(deltaTime);
+	
 	var left = false;     
 	var right = false;     
 	var jump = false;
 		
-//update sprite
-	this.sprite.update(deltaTime);
-  
-// check keydown events    
+// move left   
 	if(keyboard.isKeyDown(keyboard.KEY_LEFT) == true) 
 	{         
 		left = true;
@@ -83,7 +82,7 @@ Player.prototype.update = function(deltaTime)
 		this.jumping == false)
 			this.sprite.setAnimation(ANIM_WALK_LEFT);
 	}     
-
+//move right
 	else if(keyboard.isKeyDown(keyboard.KEY_RIGHT) == true) 
 	{         
 		right = true;
@@ -92,7 +91,7 @@ Player.prototype.update = function(deltaTime)
 		this.jumping == false)
 			this.sprite.setAnimation(ANIM_WALK_RIGHT);
 	} 
-
+//idle
 	else 
 	{	
 		if(this.jumping == false && this.falling == false)
@@ -109,42 +108,50 @@ Player.prototype.update = function(deltaTime)
 			}
 		}
 	}
-
-	if(keyboard.isKeyDown(keyboard.KEY_UP) == true) 
+//jump
+	if(keyboard.isKeyDown(keyboard.KEY_UP) == true)  
 	{         
-		jump = true; 
+		jump = true;
+		
 		if(left == true) 
 		{
 			this.sprite.setAnimation(ANIM_JUMP_LEFT);
 		}
-		if(right == true) 
+		if(right == true)
 		{
 			this.sprite.setAnimation(ANIM_JUMP_RIGHT);
-		} 
-	} 
-	
-	if(this.cooldownTimer > 0)
-		{
-			this.cooldownTimer -= deltaTime;
 		}
-		
+	}
+	
+//shoot bullet ,animation 
 	if(keyboard.isKeyDown(keyboard.KEY_SPACE) == true)
 	{
-//shoot animation
-		if (this.direction == RIGHT)
-		{
-			this.sprite.setAnimation(ANIM_SHOOTING_RIGHT);
-		}
 		if (this.direction == LEFT) 
 		{
+			if (this.sprite.currentAnimation != ANIM_SHOOTING_LEFT)
 			this.sprite.setAnimation(ANIM_SHOOTING_LEFT);
 		}
-// Shoot a bullet	
+		
+		if (this.direction == RIGHT)
+		{
+			if (this.sprite.currentAnimation != ANIM_SHOOTING_RIGHT)
+			this.sprite.setAnimation(ANIM_SHOOTING_RIGHT);
+		}
+		
 		if (this.cooldownTimer <= 0)
 		{
-			sfxFire.play();    
+			sfxFire.play(); 			
 			this.cooldownTimer += 0.3;
-		}
+			//bullet();
+			//bullet.position.set();
+			//bullet.moveRight = false;
+			//bullet.push();
+		}	
+	}
+//shoot cd	
+	if(this.cooldownTimer > 0)
+	{
+		this.cooldownTimer -= deltaTime;
 	}
 	
 	var wasleft = this.velocity.x < 0;     
@@ -182,8 +189,7 @@ Player.prototype.update = function(deltaTime)
 
     	if ((wasleft  && (this.velocity.x > 0)) ||         
 		(wasright && (this.velocity.x < 0)))      
-	{                
-// clamp at zero to prevent friction from making us jiggle side to side         
+	{   // clamp at zero to prevent friction from making us jiggle side to side         
 		this.velocity.x = 0;      
 	}
 
@@ -237,8 +243,7 @@ Player.prototype.update = function(deltaTime)
 	if (this.velocity.x > 0) 
 	{       
 		if ((cellright && !cell) || (celldiag  && !celldown && ny))  
-		{           
-// clamp the x position to avoid moving into the platform we just hit      
+		{  // clamp the x position to avoid moving into the platform we just hit      
 			this.position.x = tileToPixel(tx);         
 			this.velocity.x = 0;      // stop horizontal velocity       
 		}  
@@ -247,8 +252,7 @@ Player.prototype.update = function(deltaTime)
 	else if (this.velocity.x < 0) 
 	{         
 		if ((cell && !cellright) || (celldown && !celldiag && ny))  
-		{  
-// clamp the x position to avoid moving into the platform we just hit    
+		{  // clamp the x position to avoid moving into the platform we just hit    
 			this.position.x = tileToPixel(tx + 1);         
 			this.velocity.x = 0;        // stop horizontal velocity      
 		} 
@@ -268,6 +272,13 @@ Player.prototype.update = function(deltaTime)
 			return;
 		}
 	}
+
+/* end of level
+	if(cellAtTileCoord(LAYER_OBJECT_TRIGGERS, tx, ty) == true)
+	{
+		gameState = STATE_GAMEOVER;
+		return;
+	}*/
 }
   
 Player.prototype.draw = function() 
@@ -278,3 +289,5 @@ Player.prototype.draw = function()
 											this.position.y);											
 	context.restore(); 
 }
+
+

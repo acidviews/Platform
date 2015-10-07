@@ -29,6 +29,16 @@ function getDeltaTime()
 
 //-------------------- Don't modify anything above here
 
+/*enemy
+var ENEMY_MAXDX = METER * 5; 
+var ENEMY_ACCEL = ENEMY_MAXDX * 2;
+
+var enemies = [];
+
+var LAYER_OBJECT_ENEMIES = 3;
+var LAYER_OBJECT_TRIGGERS = 4;
+
+*/
 
 //screen
 var SCREEN_WIDTH = canvas.width;
@@ -44,10 +54,6 @@ var sfxFire;
 var fps = 0;
 var fpsCount = 0;
 var fpsTime = 0;
-
-// load an image to draw
-var chuckNorris = document.createElement("img");
-chuckNorris.src = "hero.png";
 
 //lives
 var PLAYER_LIVES = 3;
@@ -99,7 +105,6 @@ var FRICTION = MAXDX * 6;
 var JUMP = METER * 1500;     
 
 var vector2 = new Vector2();
-//var enemy = new Enemy(); 
 var player = new Player(); 
 var keyboard = new Keyboard();
 
@@ -125,15 +130,57 @@ function initialize()
 					cells[layerIdx][y-1][x+1] = 1;                       
 					cells[layerIdx][y][x+1] = 1;                    
 				} 
+				
 				else if(cells[layerIdx][y][x] != 1) 
-				{ 
-// if we haven't set this cell's value, then set it to 0 now                     
+				{ 	// if we haven't set this cell's value, then set it to 0 now                     
 					cells[layerIdx][y][x] = 0;                      
 				} 
 				idx++;             
 			}         
 		}        
 	} 
+	
+	/* add enemies from tile layer
+	idx = 0;
+	for(var y = 0; y < level1.layers[LAYER_OBJECT_ENEMIES].height; y++) 
+	{        
+		for(var x = 0; x < level1.layers[LAYER_OBJECT_ENEMIES].width; x++) 
+		{
+			if(level1.layers[LAYER_OBJECT_ENEMIES].data[idx] != 0) 
+			{
+				var px = tileToPixel(x);
+				var py = tileToPixel(y);
+				var e = new Enemy(px, py);
+				enemies.push(e);
+			}
+			idx++;
+		}
+	} 
+	
+// initialize trigger layer in collision map
+	cells[LAYER_OBJECT_TRIGGERS] = [];    
+	idx = 0;    
+	for(var y = 0; y < level1.layers[LAYER_OBJECT_TRIGGERS].height; y++) 
+	{        
+		cells[LAYER_OBJECT_TRIGGERS][y] = [];
+		for(var x = 0; x < level1.layers[LAYER_OBJECT_TRIGGERS].width; x++) 
+		{
+			if(level1.layers[LAYER_OBJECT_TRIGGERS].data[idx] != 0) 
+			{
+				cells[LAYER_OBJECT_TRIGGERS][y][x] = 1;  
+				cells[LAYER_OBJECT_TRIGGERS][y - 1][x] = 1;    
+				cells[LAYER_OBJECT_TRIGGERS][y - 1][x+1] = 1;  
+				cells[LAYER_OBJECT_TRIGGERS][y][x+1] = 1;    
+			}
+			
+			else if(cells[LAYER_OBJECT_TRIGGERS][y][x] != 1) 
+			{	// if we haven't set this cell's value, then set it to 0 now
+				cells[LAYER_OBJECT_TRIGGERS][y][x] = 0;                     
+			}
+			idx++;
+		}
+	}
+*/ 
 } 
 
 function cellAtPixelCoord(layer, x,y)    
@@ -225,6 +272,19 @@ function drawMap()
 	}
 }
 
+//collision checking function
+function intersects(x1, y1, w1, h1, x2, y2, w2, h2) 
+{  
+	if (y2 + h2 < y1 ||   
+		x2 + w2 < x1 ||   
+		x2 > x1 + w1 ||   
+		y2 > y1 + h1)  
+	{ 
+		return false;	
+	}  
+	return true; 
+}
+
 function run() 
 {
 	context.fillStyle = "#000000";
@@ -251,20 +311,17 @@ function run()
 initialize();
 {
 	musicBackground = new Howl
-	(	 
-	{
+	({
 			urls: ["background.ogg"], 
 			loop: true,
 			buffer: true,
 			volume: 0.5
-	} 
-	);
+	});
 
 	musicBackground.play();
 
 	sfxFire = new Howl
-	( 
-	{
+	({
 		urls: ["fireEffect.ogg"],
 		buffer: true,
 		volume: 1,
@@ -272,8 +329,24 @@ initialize();
 		{
 			isSfxPlaying = false;
 		}
-	} 
-	);
+	});
+	
+/* add enemies from tile layer
+	idx = 0;
+	for(var y = 0; y < level1.layers[LAYER_OBJECT_ENEMIES].height; y++) 
+	{        
+		for(var x = 0; x < level1.layers[LAYER_OBJECT_ENEMIES].width; x++) 
+		{
+			if(level1.layers[LAYER_OBJECT_ENEMIES].data[idx] != 0) 
+			{
+				var px = tileToPixel(x);
+				var py = tileToPixel(y);
+				var e = new Enemy(px, py);
+				enemies.push(e);
+			}
+			idx++;
+		}
+	} */ 
 }
 
 //-------------------- Don't modify anything below here

@@ -1,4 +1,4 @@
-	//animation variables
+//enemy animation variables
 var E_ANIM_WALK_DOWN = 0;
 var E_ANIM_WALK_RIGHT = 1;
 var E_ANIM_WALK_LEFT = 2;
@@ -10,6 +10,21 @@ var E_ANIM_BITE_UP = 7;
 var E_ANIM_DEATH = 8;
 
 var E_ANIM_MAX = 9;
+
+/*
+var Enemy = function(x, y) 
+{
+	this.sprite = new Sprite("bat.png");
+	this.sprite.buildAnimation(2, 1, 88, 94, 0.3, [0,1]);
+	this.sprite.setAnimationOffset(0,0)
+	
+for(var i=0; i<ANIM_MAX; i++)
+	{
+		this.sprite.setAnimationOffset(i, 0, 0);
+										
+	}
+};
+*/
 
 var Enemy = function() 
 {  
@@ -44,71 +59,89 @@ var Enemy = function()
 	
 	for(var i=0; i<ANIM_MAX; i++)
 	{
-		this.sprite.setAnimationOffset(i, -55, -87);
-										
+		this.sprite.setAnimationOffset(i, 0, 0);								
 	}
 	
-	this.position = new Vector2();  
-	this.position.set( 15*TILE, 4*TILE);
-    
-	this.width = 64;  
-	this.height = 64; 
-     
- 	this.velocity = new Vector2(); 
-   
-	this.falling = false;  
-	this.jumping = false; 
-
-//timer, direction
-	this.moveTimer = 4;
-	this.Left = 0;
-	this.Right = 1;
-      
-};
-//move timer
-Enemy.prototype.moveTimerReset = function()
-{
-	this.moveTimer = 4;
-}
-//enemy change direction
-Enemy.prototype.changeDirection = function()
-{
-	if (this.Left == 1)
-	{
-		this.Right = 1;
-		this.Left = 0;
-	}
+	this.position = new Vector2();
+	this.position.set(x, y);
 	
-	if (this.Right == 1)
-	{
-		this.Left = 1;
-		this.Right = 0;
-	}
+	this.velocity = new Vector2();
+	
+	this.moveRight = true;
+	this.pause = 0;
 }
 
-Enemy.prototype.update = function(deltaTime)
+/* enemy player collision
+	for each enemy in enemies array
+		update the enemy
+		if player is alive
+			if player’s collision rectangle intersects the enemy’s rect
+			set player.isAlive to false
+			end if
+		end if
+	end for
+*/
+
+Enemy.prototype.update = function(dt) 
 {
-	this.sprite.update(deltaTime);
+	this.sprite.update(dt);
 	
-	this.moveTimer -= deltaTime;
-	if (this.moveTimer <= 0)
+	if(this.pause > 0)
 	{
-		this.changeDirection();
-		this.moveTimerReset();
+		this.pause -= dt;
 	}
 	
-	if (this.Left == 1)
+	else
 	{
-		this.sprite.setAnimation(E_ANIM_WALK_LEFT);
-	}
-	
-	if (this.Right == 1)
-	{
-		this.sprite.setAnimation(E_ANIM_WALK_RIGHT);
+		var ddx = 0;	// acceleration
+		
+		var tx = pixelToTile(this.position.x);
+		var ty = pixelToTile(this.position.y);
+		var nx = (this.position.x)%TILE;        // true if enemy overlaps right
+		var ny = (this.position.y)%TILE;         // true if enemy overlaps below
+		var cell = cellAtTileCoord(LAYER_PLATFORMS, tx, ty);
+		var cellright = cellAtTileCoord(LAYER_PLATFORMS, tx + 1, ty);
+		var celldown = cellAtTileCoord(LAYER_PLATFORMS, tx, ty + 1);
+		var celldiag = cellAtTileCoord(LAYER_PLATFORMS, tx + 1, ty + 1);
+		
+		if(this.moveRight)
+		{
+			if(celldiag && !cellright) 
+			{
+				ddx = ddx + ENEMY_ACCEL;    // enemy wants to go right
+			}
+			
+			else 
+			{
+				this.velocity.
+				x = 0;
+				this.moveRight = false;
+				this.pause = 0.5;
+			}
+		}
+		
+		if(!this.moveRight)
+		{
+			if(celldown && !cell) 
+			{
+				ddx = ddx -ENEMY_ACCEL;   // enemy wants to go left
+			}
+			
+			else 
+			{
+				this.velocity.x = 0;
+				this.moveRight = true;
+				this.pause = 0.5;
+			}
+		}
+		
+	this.position.x = Math.floor(this.position.x  + (dt * this.velocity.x));
+	this.velocity.x = bound(this.velocity.x + (dt * ddx), - ENEMY_MAXDX, ENEMY_MAXDX);
 	}
 }
 
 Enemy.prototype.draw = function()
 {
-	this.sprite.draw(context, this.position.x, this.position.y);
-} 
+	this.sprite.draw(context, this.position.x - worldOffsetX, 
+											this.position.y);
+}

@@ -40,7 +40,7 @@ function splashText()
 	context.fillText("<Arrows = Movement>",480, 20);
 	 
 	context.font="40px Arial";  
-	context.fillText("Chuck Norris !",210, 250);
+	context.fillText("Chuck Norris",210, 250);
 	//context.fillText("IS",225, 300);
 	context.fillText("Ass Kicker !",225, 300);
 }
@@ -72,22 +72,25 @@ function runGame(deltaTime)
 //update player 	
 	player.update(deltaTime);
 	
+/*update enemy
+	for(var i=0; i<enemies.length; i++)
+	{
+		enemies[i].update(deltaTime);
+	}	*/
 
-	
 //draw the map
 	drawMap();
 	
 //draw player
 	player.draw();
 	
-//bullets
-	bulletsUpdate();
-	bulletsDraw();
-
 /*draw enemy
-	enemy.update(deltaTime);
-	enemy.draw();
+	for(var i=0; i<enemies.length; i++)
+	{
+		enemies[i].draw(deltaTime);
+	}
 */
+
 	
  // update the fps   
 	fpsTime += deltaTime;  
@@ -99,6 +102,7 @@ function runGame(deltaTime)
 		fpsCount = 0;  
 	} 
 
+//hud
 // draw the FPS  
 	context.fillStyle = "#f00";  
 	context.font="14px Arial";  
@@ -118,6 +122,9 @@ function runGame(deltaTime)
 				
 		context.drawImage(heart, SCREEN_WIDTH - 50 - (( heart.width + 2 ) *i ), SCREEN_HEIGHT - 50);
 	}
+	
+	
+	
 }
 
 // game over text
