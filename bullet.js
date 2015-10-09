@@ -1,3 +1,4 @@
+var bullets = []
 var Bullet = function(x, y, moveRight) 
 {
 	this.sprite = new Sprite("bullet.png");
@@ -16,18 +17,6 @@ var Bullet = function(x, y, moveRight)
 		this.velocity.set(MAXDX *2, 0);
 		else
 		this.velocity.set(-MAXDX *2, 0);
-}
-
-Bullet.prototype.update = function(dt) 
-{
-	this.sprite.update(dt);
-	this.position.x = Math.floor(this.position.x  + (dt * this.velocity.x));
-}
-
-Bullet.prototype.draw = function() 
-{
-	var screenX = this.position.x - worldOffsetX;
-	this.sprite.draw(context, screenX, this.position.y);
 }
 
 var hit=false;
@@ -51,7 +40,7 @@ for(var i=0; i<bullets.length; i++)
 			enemies.splice(j, 1);
 			hit = true;
 // increment the player score
-			PLAYER_SCORE += 1;
+			PLAYER_SCORE += 10;
 			break;
 		}
 	}
@@ -62,3 +51,16 @@ for(var i=0; i<bullets.length; i++)
 		break;
 	}
 }
+
+Bullet.prototype.update = function(dt) 
+{
+	this.sprite.update(dt);
+	this.position.x = Math.floor(this.position.x  + (dt * this.velocity.x));
+}
+
+Bullet.prototype.draw = function() 
+{
+	var screenX = this.position.x - worldOffsetX;
+	this.sprite.draw(context, screenX, this.position.y);
+}
+

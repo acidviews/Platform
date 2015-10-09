@@ -28,18 +28,6 @@ function getDeltaTime()
 }
 
 //-------------------- Don't modify anything above here
-
-/*enemy
-var ENEMY_MAXDX = METER * 5; 
-var ENEMY_ACCEL = ENEMY_MAXDX * 2;
-
-var enemies = [];
-
-var LAYER_OBJECT_ENEMIES = 3;
-var LAYER_OBJECT_TRIGGERS = 4;
-
-*/
-
 //screen
 var SCREEN_WIDTH = canvas.width;
 var SCREEN_HEIGHT = canvas.height;
@@ -55,17 +43,18 @@ var fps = 0;
 var fpsCount = 0;
 var fpsTime = 0;
 
-//lives
-var PLAYER_LIVES = 3;
-
 // load the image to use for the level tiles
 var tileset = document.createElement("img"); 
 tileset.src = "tileset.png";
-  
+
+//level layers 
 var LAYER_BACKGOUND = 0; 
 var LAYER_PLATFORMS = 1;
 var LAYER_LADDERS = 2;
 var LAYER_COUNT = 3;
+
+var LAYER_OBJECT_ENEMIES = 3;
+var LAYER_OBJECT_TRIGGERS = 4;
 
 var MAP = { tw: 60, th: 15 };
 
@@ -102,7 +91,13 @@ var ACCEL = MAXDX * 2;
 // horizontal friction -  take 1/6 second to stop from maxdx 
 var FRICTION = MAXDX * 6;       
 // (a large) instantaneous jump impulse 
-var JUMP = METER * 1500;     
+var JUMP = METER * 1500;  
+
+//enemy
+var bullets = [];
+var enemies = [];
+var ENEMY_MAXDX = METER * 5; 
+var ENEMY_ACCEL = ENEMY_MAXDX * 2;
 
 var vector2 = new Vector2();
 var player = new Player(); 
@@ -140,7 +135,7 @@ function initialize()
 		}        
 	} 
 	
-	/* add enemies from tile layer
+// add enemies from tile layer
 	idx = 0;
 	for(var y = 0; y < level1.layers[LAYER_OBJECT_ENEMIES].height; y++) 
 	{        
@@ -180,7 +175,8 @@ function initialize()
 			idx++;
 		}
 	}
-*/ 
+	
+//ladder layer	
 } 
 
 function cellAtPixelCoord(layer, x,y)    
@@ -330,28 +326,9 @@ initialize();
 			isSfxPlaying = false;
 		}
 	});
-	
-/* add enemies from tile layer
-	idx = 0;
-	for(var y = 0; y < level1.layers[LAYER_OBJECT_ENEMIES].height; y++) 
-	{        
-		for(var x = 0; x < level1.layers[LAYER_OBJECT_ENEMIES].width; x++) 
-		{
-			if(level1.layers[LAYER_OBJECT_ENEMIES].data[idx] != 0) 
-			{
-				var px = tileToPixel(x);
-				var py = tileToPixel(y);
-				var e = new Enemy(px, py);
-				enemies.push(e);
-			}
-			idx++;
-		}
-	} */ 
 }
 
 //-------------------- Don't modify anything below here
-
-
 // This code will set up the framework so that the 'run' function is called 60 times per second.
 // We have a some options to fall back on in case the browser doesn't support our preferred method.
 (function() 

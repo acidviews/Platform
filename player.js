@@ -60,41 +60,91 @@ var Player = function()
 	this.falling = true;  
 	this.jumping = false;  
 	this.direction = RIGHT; 
+	this.shooting = false;
 		
 	this.cooldownTimer = 0;
+	
+	this.shooting = false;
 }; 
 
 Player.prototype.update = function(deltaTime) 
 { 
-	//update sprite
+//update sprite
 	this.sprite.update(deltaTime);
 	
 	var left = false;     
 	var right = false;     
 	var jump = false;
+	this.shooting = false;
+	
+	if (this.cooldownTimer >= 0)
+	{ 			
+		this.cooldownTimer -= deltaTime;
+	}
+	
+//shoot bullet ,animation 
+	if(keyboard.isKeyDown(keyboard.KEY_SPACE) == true)
+	{
+		this.shooting = true;
 		
+		if (this.direction == LEFT) 
+		{
+			if (this.sprite.currentAnimation != ANIM_SHOOTING_LEFT)
+			this.sprite.setAnimation(ANIM_SHOOTING_LEFT);
+			if (this.cooldownTimer <= 0)
+			{
+				sfxFire.play(); 			
+				this.cooldownTimer += 0.5;
+				var bullet = new Bullet(player.position.x - 25, player.position.y - 10, false);
+				bullets.push(bullet);
+			}
+		}
+		
+		if (this.direction == RIGHT)
+		{
+			if (this.sprite.currentAnimation != ANIM_SHOOTING_RIGHT)
+			this.sprite.setAnimation(ANIM_SHOOTING_RIGHT);
+			if (this.cooldownTimer <= 0)
+			{
+				sfxFire.play(); 			
+				this.cooldownTimer += 0.5;
+				var bullet = new Bullet(player.position.x + 75, player.position.y - 10, true);
+				bullets.push(bullet);
+			}
+		}
+	}
+	
 // move left   
 	if(keyboard.isKeyDown(keyboard.KEY_LEFT) == true) 
-	{         
+	{
 		left = true;
 		this.direction = LEFT;
-		if (this.sprite.currentAnimation != ANIM_WALK_LEFT &&
-		this.jumping == false)
+		if (this.shooting == false)
+		{
+			if (this.sprite.currentAnimation != ANIM_WALK_LEFT &&
+			this.jumping == false)
 			this.sprite.setAnimation(ANIM_WALK_LEFT);
-	}     
+		}
+		
+	}
+	
 //move right
 	else if(keyboard.isKeyDown(keyboard.KEY_RIGHT) == true) 
-	{         
+	{
 		right = true;
 		this.direction = RIGHT;
-		if(this.sprite.currentAnimation != ANIM_WALK_RIGHT &&
-		this.jumping == false)
+		if (this.shooting == false)
+		{
+			if(this.sprite.currentAnimation != ANIM_WALK_RIGHT &&
+			this.jumping == false)
 			this.sprite.setAnimation(ANIM_WALK_RIGHT);
+		}
 	} 
-//idle
+
+//idle	
 	else 
 	{	
-		if(this.jumping == false && this.falling == false)
+		if(this.jumping == false && this.falling == false && this.shooting == false)
 		{
 			if(this.direction == LEFT) 
 			{
@@ -108,6 +158,7 @@ Player.prototype.update = function(deltaTime)
 			}
 		}
 	}
+	
 //jump
 	if(keyboard.isKeyDown(keyboard.KEY_UP) == true)  
 	{         
@@ -121,39 +172,8 @@ Player.prototype.update = function(deltaTime)
 		{
 			this.sprite.setAnimation(ANIM_JUMP_RIGHT);
 		}
-	}
-	
-//shoot bullet ,animation 
-	if(keyboard.isKeyDown(keyboard.KEY_SPACE) == true)
-	{
-		if (this.direction == LEFT) 
-		{
-			if (this.sprite.currentAnimation != ANIM_SHOOTING_LEFT)
-			this.sprite.setAnimation(ANIM_SHOOTING_LEFT);
-		}
-		
-		if (this.direction == RIGHT)
-		{
-			if (this.sprite.currentAnimation != ANIM_SHOOTING_RIGHT)
-			this.sprite.setAnimation(ANIM_SHOOTING_RIGHT);
-		}
-		
-		if (this.cooldownTimer <= 0)
-		{
-			sfxFire.play(); 			
-			this.cooldownTimer += 0.3;
-			//bullet();
-			//bullet.position.set();
-			//bullet.moveRight = false;
-			//bullet.push();
-		}	
-	}
-//shoot cd	
-	if(this.cooldownTimer > 0)
-	{
-		this.cooldownTimer -= deltaTime;
-	}
-	
+	}	
+
 	var wasleft = this.velocity.x < 0;     
 	var wasright = this.velocity.x > 0;     
 	var falling = this.falling;      
@@ -165,7 +185,7 @@ Player.prototype.update = function(deltaTime)
 	else if (wasleft)         
 		ddx = ddx + FRICTION;       // player was going left, but not any more
   
-    	if (right)         
+    if (right)         
 		ddx = ddx + ACCEL;          // player wants to go right     
 	else if (wasright)         
 		ddx = ddx - FRICTION;       // player was going right, but not any more 
@@ -180,7 +200,6 @@ Player.prototype.update = function(deltaTime)
 		else
 			this.sprite.setAnimation(ANIM_JUMP_RIGHT)
 	} 
- 
 // calculate the new position and velocity:     
 	this.position.y = Math.floor(this.position.y  + (deltaTime * this.velocity.y));     
 	this.position.x = Math.floor(this.position.x  + (deltaTime * this.velocity.x));     
@@ -192,7 +211,6 @@ Player.prototype.update = function(deltaTime)
 	{   // clamp at zero to prevent friction from making us jiggle side to side         
 		this.velocity.x = 0;      
 	}
-
 // collision detection 
 // Our collision detection logic is greatly simplified by the fact that the  
 // player is a rectangle and is exactly the same size as a single tile.
@@ -216,8 +234,7 @@ Player.prototype.update = function(deltaTime)
 	if (this.velocity.y > 0)  
 	{  
 		if ((celldown && !cell) || (celldiag && !cellright && nx))  
-		{    
-// clamp the y position to avoid falling into platform below     
+		{   // clamp the y position to avoid falling into platform below     
 			this.position.y = tileToPixel(ty);            
 			this.velocity.y = 0;              // stop downward velocity     
 			this.falling = false;             // no longer falling     
@@ -225,12 +242,10 @@ Player.prototype.update = function(deltaTime)
 			ny = 0;                           // no longer overlaps the cells below  
 		}     
 	}
-
 	else if (this.velocity.y < 0)  
 	{  
 		if ((cell && !celldown) || (cellright && !celldiag && nx))  
-		{      
-// clamp the y position to avoid jumping into platform above      
+		{   // clamp the y position to avoid jumping into platform above      
 			this.position.y = tileToPixel(ty + 1);          
 			this.velocity.y = 0;             // stop upward velocity     
 // player is no longer really in that cell, we clamped them to the cell below       
@@ -248,7 +263,6 @@ Player.prototype.update = function(deltaTime)
 			this.velocity.x = 0;      // stop horizontal velocity       
 		}  
 	} 
-	
 	else if (this.velocity.x < 0) 
 	{         
 		if ((cell && !cellright) || (celldown && !celldiag && ny))  
@@ -272,15 +286,17 @@ Player.prototype.update = function(deltaTime)
 			return;
 		}
 	}
-
-/* end of level
+	
+// end of level sign collision
 	if(cellAtTileCoord(LAYER_OBJECT_TRIGGERS, tx, ty) == true)
 	{
 		gameState = STATE_GAMEOVER;
 		return;
-	}*/
+	}
+	
+	
 }
-  
+
 Player.prototype.draw = function() 
 { 
 	context.save();

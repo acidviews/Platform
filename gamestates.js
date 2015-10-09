@@ -2,12 +2,14 @@ var STATE_SPLASH = 0;
 var STATE_GAME = 1;
 var STATE_GAMEOVER = 2;
 
+var PLAYER_LIVES = 3;
 var PLAYER_DEATHS = 0;
 var PLAYER_HISCORE = 0;
 var PLAYER_SCORE = 0;
 
 var titleSplashTimer = 6;
 var gameOverTimer = 6;
+
 // default launch screen
 var gameState = STATE_SPLASH;
 
@@ -16,6 +18,7 @@ function gameReset()
 {
 	gameOverTimer = 6;
 	PLAYER_SCORE = 0;
+	PLAYER_LIVES = 3;
 	
 	player.position.set( 9*TILE, 0*TILE);
 }
@@ -23,7 +26,7 @@ function gameReset()
 //score function
 function checkHiScore()
 {
-	if (PLAYER_SCORE > PLAYER_HISCORE)
+	if (PLAYER_SCORE >= PLAYER_HISCORE)
 	{
 		PLAYER_HISCORE = PLAYER_SCORE;
 		context.fillText("Congratulations ! Your Have The High Score " ,10, 325);
@@ -41,7 +44,6 @@ function splashText()
 	 
 	context.font="40px Arial";  
 	context.fillText("Chuck Norris",210, 250);
-	//context.fillText("IS",225, 300);
 	context.fillText("Ass Kicker !",225, 300);
 }
 
@@ -57,7 +59,7 @@ function runSplash(deltaTime)
 	splashText();			// draw text
 	
 //enter game
-if(keyboard.isKeyDown(keyboard.KEY_SPACE) == true) 
+	if(keyboard.isKeyDown(keyboard.KEY_SPACE) == true) 
 	{         
 		gameState = STATE_GAME;
 		return;     
@@ -66,32 +68,78 @@ if(keyboard.isKeyDown(keyboard.KEY_SPACE) == true)
 
 function runGame(deltaTime)
 {
-	context.fillStyle = "#ccc";    
+	context.fillStyle = "DodgerBlue";    
 	context.fillRect(0, 0, canvas.width, canvas.height);
 	
 //update player 	
 	player.update(deltaTime);
 	
-/*update enemy
+//draw the map
+	drawMap();
+	
+//update draw enemy
 	for(var i=0; i<enemies.length; i++)
 	{
 		enemies[i].update(deltaTime);
-	}	*/
-
-//draw the map
-	drawMap();
+		enemies[i].draw(deltaTime);
+	}
 	
 //draw player
 	player.draw();
 	
-/*draw enemy
+//update draw bullets
+	for(var i=0; i<bullets.length; i++)
+	{
+		var hit=false;
+		
+		bullets[i].update(deltaTime);
+		bullets[i].draw(deltaTime);
+		if( bullets[i].position.x - worldOffsetX < 0 ||
+		bullets[i].position.x - worldOffsetX > SCREEN_WIDTH)
+		{
+			hit = true;
+		}
+//enemy collision	
+		for(var j=0; j<enemies.length; j++)
+		{
+			if(intersects( bullets[i].position.x, bullets[i].position.y, TILE, TILE,
+			enemies[j].position.x, enemies[j].position.y, TILE, TILE) == true)
+			{
+// kill both the bullet and the enemy
+				enemies.splice(j, 1);
+				hit = true;
+// increment the player score
+				PLAYER_SCORE += 10;
+				break;
+			}
+		}
+		
+		if (hit == true) 
+		{
+			bullets.splice(i, 1);
+			break;
+		}
+	}
+/*	
+//enemy collsion player	
 	for(var i=0; i<enemies.length; i++)
 	{
-		enemies[i].draw(deltaTime);
-	}
-*/
-
+		if(intersects(enemies[i].position.x, enemies[i].position.y, TILE, TILE,
+			player.position.x, player.position.y, TILE, TILE) == true)
+		{
+// kill the player
+			PLAYER_LIVES -= 1;
+			PLAYER_DEATHS += 1;
+			player.position.set( 9*TILE, 0*TILE);
 	
+			if (PLAYER_LIVES < 0)
+			{
+				gameState = STATE_GAMEOVER;
+				return;
+			}
+		}
+	}
+*/	
  // update the fps   
 	fpsTime += deltaTime;  
 	fpsCount++;  
@@ -122,9 +170,6 @@ function runGame(deltaTime)
 				
 		context.drawImage(heart, SCREEN_WIDTH - 50 - (( heart.width + 2 ) *i ), SCREEN_HEIGHT - 50);
 	}
-	
-	
-	
 }
 
 // game over text
@@ -138,7 +183,7 @@ function gameOverText()
 	context.fillText("Your Score   " + PLAYER_SCORE, 240, 250);
 //player deaths		
 	context.font="20px Arial";
-	context.fillText("Deaths   " + PLAYER_DEATHS, 280, 475);
+	//context.fillText("Deaths   " + PLAYER_DEATHS, 280, 475);
 }
 
 // game over splash
@@ -156,6 +201,8 @@ function runGameOver(deltaTime)
 	if(gameOverTimer <= 0)
 	{
 		gameState = STATE_SPLASH;
+		enemies.splice(j, enemies.length);
+		initialize();
 		return;
 	}
 }

@@ -11,22 +11,7 @@ var E_ANIM_DEATH = 8;
 
 var E_ANIM_MAX = 9;
 
-/*
 var Enemy = function(x, y) 
-{
-	this.sprite = new Sprite("bat.png");
-	this.sprite.buildAnimation(2, 1, 88, 94, 0.3, [0,1]);
-	this.sprite.setAnimationOffset(0,0)
-	
-for(var i=0; i<ANIM_MAX; i++)
-	{
-		this.sprite.setAnimationOffset(i, 0, 0);
-										
-	}
-};
-*/
-
-var Enemy = function() 
 {  
 	this.sprite = new Sprite("zombieEnemy.png");
 //walk down
@@ -59,28 +44,17 @@ var Enemy = function()
 	
 	for(var i=0; i<ANIM_MAX; i++)
 	{
-		this.sprite.setAnimationOffset(i, 0, 0);								
+		this.sprite.setAnimationOffset(i, -10, -20);								
 	}
 	
 	this.position = new Vector2();
-	this.position.set(x, y);
+	this.position.set(x,y);
 	
 	this.velocity = new Vector2();
 	
 	this.moveRight = true;
 	this.pause = 0;
 }
-
-/* enemy player collision
-	for each enemy in enemies array
-		update the enemy
-		if player is alive
-			if player’s collision rectangle intersects the enemy’s rect
-			set player.isAlive to false
-			end if
-		end if
-	end for
-*/
 
 Enemy.prototype.update = function(dt) 
 {
@@ -108,13 +82,16 @@ Enemy.prototype.update = function(dt)
 		{
 			if(celldiag && !cellright) 
 			{
+				if (this.sprite.currentAnimation != E_ANIM_WALK_RIGHT)
+				{
+					this.sprite.setAnimation(E_ANIM_WALK_RIGHT);
+				}
 				ddx = ddx + ENEMY_ACCEL;    // enemy wants to go right
 			}
 			
 			else 
 			{
-				this.velocity.
-				x = 0;
+				this.velocity.x = 0;
 				this.moveRight = false;
 				this.pause = 0.5;
 			}
@@ -124,9 +101,12 @@ Enemy.prototype.update = function(dt)
 		{
 			if(celldown && !cell) 
 			{
+				if (this.sprite.currentAnimation != E_ANIM_WALK_LEFT)
+				{
+					this.sprite.setAnimation(E_ANIM_WALK_LEFT);
+				}
 				ddx = ddx -ENEMY_ACCEL;   // enemy wants to go left
 			}
-			
 			else 
 			{
 				this.velocity.x = 0;
