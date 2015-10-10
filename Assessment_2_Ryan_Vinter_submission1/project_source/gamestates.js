@@ -1,6 +1,7 @@
 var STATE_SPLASH = 0;
 var STATE_GAME = 1;
 var STATE_GAMEOVER = 2;
+var STATE_COMPLETE = 3;
 
 var PLAYER_LIVES = 3;
 var PLAYER_DEATHS = 0;
@@ -9,6 +10,7 @@ var PLAYER_SCORE = 0;
 
 var titleSplashTimer = 6;
 var gameOverTimer = 6;
+var gameCompleteTimer = 6;
 
 // default launch screen
 var gameState = STATE_SPLASH;
@@ -17,6 +19,7 @@ var gameState = STATE_SPLASH;
 function gameReset()
 {
 	gameOverTimer = 6;
+	gameCompleteTimer = 6;
 	PLAYER_SCORE = 0;
 	PLAYER_LIVES = 3;
 	
@@ -120,7 +123,7 @@ function runGame(deltaTime)
 			break;
 		}
 	}
-/*	
+	
 //enemy collsion player	
 	for(var i=0; i<enemies.length; i++)
 	{
@@ -139,7 +142,7 @@ function runGame(deltaTime)
 			}
 		}
 	}
-*/	
+	
  // update the fps   
 	fpsTime += deltaTime;  
 	fpsCount++;  
@@ -207,3 +210,38 @@ function runGameOver(deltaTime)
 	}
 }
 
+// game over text
+function gameCompleteText()
+{
+	context.fillStyle = "black";  
+	context.font="30px Arial";  
+	context.fillText(":) Congradulations ! :)", 20, 100);
+// hi scores	
+	context.fillText("You have completed the game "  , 20, 175);
+	context.fillText("Your Score   " + PLAYER_SCORE, 20, 250);
+	context.fillText("High Score   " +  PLAYER_HISCORE , 20, 325);
+//player deaths		
+	context.font="20px Arial";
+	//context.fillText("Deaths   " + PLAYER_DEATHS, 280, 475);
+}
+
+// game over splash
+function runGameComplete(deltaTime)
+{
+	checkHiScore();			// check an set the hiscore
+	
+	var background = new Image();			//draw bg
+	background.src = "gameComplete.png";
+	context.drawImage(background, 0, 0);
+	
+	gameCompleteText();							//draw the text
+//=return to title
+	gameCompleteTimer -= deltaTime;	
+	if(gameCompleteTimer <= 0)
+	{
+		gameState = STATE_SPLASH;
+		enemies.splice(j, enemies.length);
+		initialize();
+		return;
+	}
+}

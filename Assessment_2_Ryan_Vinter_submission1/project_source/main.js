@@ -125,7 +125,7 @@ function initialize()
 					cells[layerIdx][y-1][x+1] = 1;                       
 					cells[layerIdx][y][x+1] = 1;                    
 				} 
-				
+
 				else if(cells[layerIdx][y][x] != 1) 
 				{ 	// if we haven't set this cell's value, then set it to 0 now                     
 					cells[layerIdx][y][x] = 0;                      
@@ -186,7 +186,7 @@ function cellAtPixelCoord(layer, x,y)
 // let the player drop of the bottom of the screen (this means death)  
 	if(y>SCREEN_HEIGHT)   
 		return 0;   
-	return cellAtTileCoord(layer, p2t(x), p2t(y));     
+	return cellAtTileCoord(layer, pixelToTile(x), pixelToTile(y));     
 };  
 
 function cellAtTileCoord(layer, tx, ty)  
@@ -300,6 +300,10 @@ function run()
 		
 		case STATE_GAMEOVER:
 		runGameOver(deltaTime);
+		break;
+		
+		case STATE_COMPLETE:
+		runGameComplete(deltaTime);
 		break;
 	}
 } 

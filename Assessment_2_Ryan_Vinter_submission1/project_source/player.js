@@ -13,6 +13,9 @@ var ANIM_MAX = 9;
 var LEFT = 0;
 var RIGHT = 1;
 
+var climbUp = false;
+var climbDown = false;
+
 var Player = function() 
 {  
 	this.sprite = new Sprite("ChuckNorris.png");
@@ -58,17 +61,17 @@ var Player = function()
 	this.height = 163; 
      
 	this.falling = true;  
-	this.jumping = false;  
-	this.direction = RIGHT; 
-	this.shooting = false;
-		
-	this.cooldownTimer = 0;
+	this.jumping = false;
+	this.isClimbing = false;
+	
+	this.direction = RIGHT;
 	
 	this.shooting = false;
-}; 
-
-Player.prototype.update = function(deltaTime) 
-{ 
+	this.cooldownTimer = 0;
+	
+}; 		
+Player.prototype.RunJumpState = function(deltaTime)
+{	
 //update sprite
 	this.sprite.update(deltaTime);
 	
@@ -206,7 +209,7 @@ Player.prototype.update = function(deltaTime)
 	this.velocity.x = bound(this.velocity.x + (deltaTime * ddx), -MAXDX, MAXDX);     
 	this.velocity.y = bound(this.velocity.y + (deltaTime * ddy), -MAXDY, MAXDY); 
 
-    	if ((wasleft  && (this.velocity.x > 0)) ||         
+    if ((wasleft  && (this.velocity.x > 0)) ||         
 		(wasright && (this.velocity.x < 0)))      
 	{   // clamp at zero to prevent friction from making us jiggle side to side         
 		this.velocity.x = 0;      
@@ -279,7 +282,7 @@ Player.prototype.update = function(deltaTime)
 		PLAYER_LIVES -= 1;
 		PLAYER_DEATHS += 1;
 		player.position.set( 9*TILE, 0*TILE);
-		
+	
 		if (PLAYER_LIVES < 0)
 		{
 			gameState = STATE_GAMEOVER;
@@ -287,14 +290,184 @@ Player.prototype.update = function(deltaTime)
 		}
 	}
 	
+//bug fix for trigger obj at x0	
+	if (this.position.x <= 40) 
+	{
+		this.position.x += 10;
+	}
+		
+//bug fix for trigger obj at y0	
+	if (this.position.y <= 40) 
+	{
+		this.position.y += 10;
+	}		
 // end of level sign collision
 	if(cellAtTileCoord(LAYER_OBJECT_TRIGGERS, tx, ty) == true)
 	{
-		gameState = STATE_GAMEOVER;
+		gameState = STATE_COMPLETE;
 		return;
 	}
+
+//----------------  climbing state switch	-------------------
+	if (right == false && left == false && this.falling == false)
+	{
+// player is not moving or falling, but could be 
+// jumping (because we use the up key for both
+// jumping and climbing) 
+		
+		var tx = pixelToTile(this.position.x);  
+		var ty = pixelToTile(this.position.y);  
+		var nx = (this.position.x)%TILE;           
+		var ny = (this.position.y)%TILE;
+		
+		var cell = cellAtTileCoord(LAYER_LADDERS, tx, ty);  
+		var cellright = cellAtTileCoord(LAYER_LADDERS, tx + 1, ty);  
+		var celldown = cellAtTileCoord(LAYER_LADDERS, tx, ty + 1);  
+		var celldiag = cellAtTileCoord(LAYER_LADDERS, tx + 1, ty + 1); 
 	
+//check if we are standing at the bottom of a ladder 
 	
+		if (( cell != 0 || cellright != 0 ))
+		{
+			if(keyboard.isKeyDown(keyboard.KEY_UP) == true)
+			{
+				this.sprite.setAnimation(ANIM_CLIMBING);
+				this.isClimbing = true;
+			}
+		}
+	
+// check if we are standing at the top of a ladder
+		if (( celldown != 0 || celldiag != 0 ))
+		{
+			if(keyboard.isKeyDown(keyboard.KEY_DOWN) == true)
+			{
+				this.sprite.setAnimation(ANIM_CLIMBING);
+				this.isClimbing = true;
+			}
+		}
+	}
+}
+
+Player.prototype.climbState = function(deltaTime)
+{
+	var climbUp = false;
+	var climbDown = false;
+	var climbspeed = 250;
+	
+	var ddy = 1; // climbing acceleration
+	
+	this.sprite.update(deltaTime);
+	
+//if up key is down climb up = true 
+	if(keyboard.isKeyDown(keyboard.KEY_UP) == true)  
+	{ 
+		climbUp = true;
+		if (this.sprite.currentAnimation != ANIM_CLIMBING)
+			this.sprite.setAnimation(ANIM_CLIMBING);
+	}
+	
+//if down key is down climb down = true	
+	if(keyboard.isKeyDown(keyboard.KEY_DOWN) == true)  
+	{ 
+		climbDown = true;
+		if (this.sprite.currentAnimation != ANIM_CLIMBING)
+			this.sprite.setAnimation(ANIM_CLIMBING);
+	}
+	
+//was moving up = true
+	 if (this.velocity.y < 0)
+	{
+		var wasup = true;
+	}
+				
+//was moving down = true
+	 if (this.velocity.y > 0)
+	{
+		var wasdown = true;
+	}
+	
+//reset acceleration Y
+	if (wasup || (wasdown ))
+	{
+		this.velocity.y = 0;
+	}
+	
+//if climb up is true move up		
+	if (climbUp == true)
+	{
+		ddy = ddy -= climbspeed;	
+	}		             
+	else if (wasup)
+	{
+		ddy = 0;
+	}		
+		
+//if climb down is true climb down				
+	if (climbDown == true)
+	{
+		ddy = ddy += climbspeed;
+	}		             
+	else if (wasdown)
+	{
+		ddy = 0;
+	}		
+		
+//add acceleration Y to velocity Y and clamp to range
+//add velocity to position ddy;
+	this.velocity.y = ddy;//this.velocity.y + deltaTime * ddy; bound(this.velocity.y + (deltaTime * ddy), -MAXDY, MAXDY);
+	this.position.y = Math.floor(this.position.y  + (deltaTime * this.velocity.y));
+	
+//calculate tile X,Y using player's position		
+	cellAtPixelCoord(LAYER_LADDERS, this.position.x,this.position.y)
+
+	var tx = pixelToTile(this.position.x);  
+	var ty = pixelToTile(this.position.y);  
+	var nx = (this.position.x)%TILE;           
+	var ny = (this.position.y)%TILE;
+	
+	var cell = cellAtTileCoord(LAYER_LADDERS, tx, ty);  
+	var cellright = cellAtTileCoord(LAYER_LADDERS, tx + 1, ty);  
+	var celldown = cellAtTileCoord(LAYER_LADDERS, tx, ty + 1);  
+	var celldiag = cellAtTileCoord(LAYER_LADDERS, tx + 1, ty + 1);
+	
+	var platdown = cellAtTileCoord(LAYER_PLATFORMS, tx, ty + 1);  
+	var platdiag = cellAtTileCoord(LAYER_PLATFORMS, tx + 1, ty + 1);  
+	
+	if (cell == 0 && celldown == 0 && cellright == 0 && celldiag == 0) 
+	{
+		this.isClimbing = false;
+	}
+	
+//if was moving down and cell are empty 			
+	if (this.velocity.y > 0 || wasdown)
+	{
+		if (platdown != 0  && platdiag != 0)
+		{
+			this.isClimbing = false;
+		}
+	}
+	
+//if was moving up and cell are empty 					
+	else if (this.velocity.y < 0 || wasup)
+	{
+		if(cell == 0 && celldown == 0 || 
+		celldiag == 0 && cellright == 0)
+		{
+			this.isClimbing = false;
+		}
+	}
+}
+	
+Player.prototype.update = function(deltaTime) 
+{
+	if (this.isClimbing) 
+	{
+		this.climbState(deltaTime)
+	} 
+	else 
+	{
+		this.RunJumpState(deltaTime)	
+	}
 }
 
 Player.prototype.draw = function() 
@@ -305,5 +478,3 @@ Player.prototype.draw = function()
 											this.position.y);											
 	context.restore(); 
 }
-
-
