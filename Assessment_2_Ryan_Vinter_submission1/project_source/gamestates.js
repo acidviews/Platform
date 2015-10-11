@@ -220,7 +220,7 @@ function gameCompleteText()
 	context.fillText("You have completed the game "  , 20, 175);
 	context.fillText("Your Score   " + PLAYER_SCORE, 20, 250);
 	context.fillText("High Score   " +  PLAYER_HISCORE , 20, 325);
-	context.fillText("Chuck Norris's Score   11 ", 20, 400);
+	context.fillText("Chuck Norris's Score   110 ", 20, 400);
 //player deaths		
 	context.font="20px Arial";
 	//context.fillText("Deaths   " + PLAYER_DEATHS, 280, 475);
